@@ -17,14 +17,20 @@ import {
   useTheme
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const router = useRouter();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleLoginClick = () => {
+    router.push('/Auth');
   };
 
   const navItems = ['Home', 'About Us', 'Contact Us', 'Login'];
@@ -37,7 +43,10 @@ export default function Navbar() {
       <List>
         {navItems.map((item) => (
           <ListItem key={item} disablePadding>
-            <ListItemButton sx={{ textAlign: 'center' }}>
+            <ListItemButton 
+              sx={{ textAlign: 'center' }}
+              onClick={item === 'Login' ? handleLoginClick : undefined}
+            >
               <ListItemText 
                 primary={item} 
                 primaryTypographyProps={{
@@ -156,6 +165,7 @@ export default function Navbar() {
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   }
                 }}
+                onClick={item === 'Login' ? handleLoginClick : undefined}
               >
                 {item}
               </Button>
