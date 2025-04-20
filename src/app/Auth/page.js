@@ -210,7 +210,7 @@ function GhibliAuthPage() {
           }
           
           // Redirect to dashboard on successful login
-          window.location.href = 'http://localhost:3001';
+          window.location.href = 'http://localhost:3000/HomePage';
         } else {
           // Display error message
           setSnackbar({

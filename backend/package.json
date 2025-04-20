@@ -15,6 +15,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.2",
+    "mongoose-sequence": "^6.0.1",
     "nodemon": "^3.1.9"
   }
 }

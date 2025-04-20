@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 const authenticate=require('./middleware/Authenticate');
+const Goal=require('./models/Goals');
 const cors = require('cors');
 
 
@@ -17,11 +18,11 @@ app.use(cors({
   }));
 
 // MongoDB connection string
-const uri = `mongodb+srv://salfiyaanzar:salfiya123%40blog@ghibliclimate.if6ancn.mongodb.net/?retryWrites=true&w=majority&appName=ghibliclimate`;
+const uri = `mongodb://salfiyaanzar:salfiya123%40blog@ac-b0wesq6-shard-00-00.if6ancn.mongodb.net:27017,ac-b0wesq6-shard-00-01.if6ancn.mongodb.net:27017,ac-b0wesq6-shard-00-02.if6ancn.mongodb.net:27017/?replicaSet=atlas-cmwu91-shard-0&ssl=true&authSource=admin&retryWrites=true&w=majority&appName=ghibliclimate`;
 
 mongoose.connect(uri, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true   //
 })
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
@@ -126,6 +127,106 @@ app.get('/profile', authenticate, async (req, res) => {
       res.status(500).json({ error: err.message });
     }
   });
+
+  // Logout API - Clears the token on client side
+app.post('/logout', authenticate, (req, res) => {
+  try {
+    // In a stateless JWT system, the token remains valid until expiration
+    // The actual "logout" happens on the client side by removing the token
+    res.status(200).json({ 
+      message: 'Logout successful. Please remove the token on client side.',
+      logout: true 
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/add-goal', authenticate, async (req, res) => {
+  try {
+    const { goal, category, completed = false } = req.body; // completed defaults to false if not provided
+
+    if (!goal || !category) {
+      return res.status(400).json({ error: 'Goal and category are required.' });
+    }
+
+    console.log("Authenticated user:", req.user);
+
+    const newGoal = new Goal({
+      user: req.user.userId, // comes from JWT payload
+      goal,
+      category,
+      completed
+    });
+
+    await newGoal.save();
+    res.status(201).json(newGoal);
+  } catch (err) {
+    console.error('Error saving goal:', err);
+    res.status(500).json({ error: 'Something went wrong.' });
+  }
+});
+
+app.get('/get-goals', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.userId; // comes from JWT payload
+
+    // Fetch goals associated with the authenticated user
+    const goals = await Goal.find({ user: userId });
+
+    res.status(200).json(goals); // this includes `completed` by default
+  } catch (err) {
+    console.error('Error fetching goals:', err);
+    res.status(500).json({ error: 'Something went wrong while fetching goals.' });
+  }
+});
+
+// Backend endpoint for toggling goal completion status
+app.patch('/toggle-goal/:id', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const goalId = req.params.id;
+
+    // Find the goal and ensure it belongs to the authenticated user
+    const goal = await Goal.findOne({ _id: goalId, user: userId });
+
+    if (!goal) {
+      return res.status(404).json({ error: 'Goal not found or unauthorized.' });
+    }
+
+    // Toggle the completed status
+    goal.completed = !goal.completed;
+    await goal.save();
+
+    res.status(200).json({ 
+      message: goal.completed ? 'Goal marked as completed.' : 'Goal marked as incomplete.',
+      goal 
+    });
+  } catch (err) {
+    console.error('Error toggling goal completion:', err);
+    res.status(500).json({ error: 'Something went wrong while updating the goal.' });
+  }
+});
+
+app.delete('/delete-goal/:id', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const goalId = req.params.id;
+
+    // Find and delete the goal if it belongs to the user
+    const deletedGoal = await Goal.findOneAndDelete({ _id: goalId, user: userId });
+
+    if (!deletedGoal) {
+      return res.status(404).json({ error: 'Goal not found or unauthorized.' });
+    }
+
+    res.status(200).json({ message: 'Goal deleted successfully.', goal: deletedGoal });
+  } catch (err) {
+    console.error('Error deleting goal:', err);
+    res.status(500).json({ error: 'Something went wrong while deleting the goal.' });
+  }
+});
+
 
 app.get('/', (req, res) => {
   res.send('Hello from Express and MongoDB!');

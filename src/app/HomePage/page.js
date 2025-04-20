@@ -334,6 +334,7 @@ export default function Home() {
               <Typography 
                 variant="h6" 
                 component="div"
+                
                 sx={{ 
                   color: '#1A4D2E',
                   fontWeight: 600,
@@ -368,6 +369,7 @@ export default function Home() {
               <Button 
                 variant="contained" 
                 fullWidth
+                onClick={() => window.location.href = 'http://localhost:3000/ClimateActionGoals'}
                 sx={{
                   backgroundColor: '#1A4D2E',
                   '&:hover': {

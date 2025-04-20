@@ -14,9 +14,14 @@ import {
   ListItemButton,
   ListItemText,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Avatar,
+  Menu,
+  MenuItem,
+  Divider
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
@@ -24,16 +29,93 @@ export default function Navbar() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const router = useRouter();
+  const [userData, setUserData] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+
+  React.useEffect(() => {
+    // Fetch user profile data when component mounts
+    const fetchUserProfile = async () => {
+      try {
+        // Get token from localStorage or wherever you store it
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+          // If no token, user is not logged in
+          return;
+        }
+
+        const response = await fetch('http://localhost:5000/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserData(data.user);
+        } else {
+          // Handle error or unauthorized state
+          console.error('Failed to fetch user data');
+          // Optionally clear token if it's invalid
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleLoginClick = () => {
-    router.push('/Auth');
+  const handleProfileClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const navItems = ['Home', 'About Us', 'Contact Us', 'Login'];
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        router.push('/Auth');
+        return;
+      }
+
+      // Call the logout API
+      const response = await fetch('http://localhost:5000/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        // Remove token from local storage
+        localStorage.removeItem('token');
+        // Redirect to Auth page
+        router.push('/Auth');
+      } else {
+        console.error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+    } finally {
+      handleClose(); // Close the menu regardless of outcome
+    }
+  };
+
+  // Modified nav items - removed 'Login'
+  const navItems = ['Home', 'About Us', 'Contact Us'];
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
@@ -45,7 +127,6 @@ export default function Navbar() {
           <ListItem key={item} disablePadding>
             <ListItemButton 
               sx={{ textAlign: 'center' }}
-              onClick={item === 'Login' ? handleLoginClick : undefined}
             >
               <ListItemText 
                 primary={item} 
@@ -56,6 +137,52 @@ export default function Navbar() {
             </ListItemButton>
           </ListItem>
         ))}
+        {userData ? (
+          <>
+            <ListItem disablePadding>
+              <ListItemButton 
+                sx={{ textAlign: 'center' }}
+                onClick={handleProfileClick}
+              >
+                <ListItemText 
+                  primary={userData.fullName} 
+                  primaryTypographyProps={{
+                    fontFamily: "'Comic Sans MS', cursive",
+                    fontWeight: 'bold'
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton 
+                sx={{ textAlign: 'center', color: 'crimson' }}
+                onClick={handleLogout}
+              >
+                <LogoutIcon sx={{ mr: 1, fontSize: 18 }} />
+                <ListItemText 
+                  primary="Logout" 
+                  primaryTypographyProps={{
+                    fontFamily: "'Comic Sans MS', cursive",
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          </>
+        ) : (
+          <ListItem disablePadding>
+            <ListItemButton 
+              sx={{ textAlign: 'center' }}
+              onClick={() => router.push('/Auth')}
+            >
+              <ListItemText 
+                primary="Login" 
+                primaryTypographyProps={{
+                  fontFamily: "'Comic Sans MS', cursive"
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        )}
       </List>
     </Box>
   );
@@ -150,7 +277,7 @@ export default function Navbar() {
           </Typography>
 
           {/* Navigation Links - Right Side */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
             {navItems.map((item) => (
               <Button 
                 key={item} 
@@ -165,11 +292,103 @@ export default function Navbar() {
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   }
                 }}
-                onClick={item === 'Login' ? handleLoginClick : undefined}
               >
                 {item}
               </Button>
             ))}
+            
+            {/* User Profile Display */}
+            {userData ? (
+              <>
+                <Button
+                  id="profile-button"
+                  aria-controls={open ? 'profile-menu' : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={open ? 'true' : undefined}
+                  onClick={handleProfileClick}
+                  sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    ml: 2,
+                    backgroundColor: 'rgba(183, 207, 169, 0.3)',
+                    px: 2,
+                    py: 0.75,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: 'rgba(183, 207, 169, 0.5)',
+                    }
+                  }}
+                >
+                  <Avatar 
+                    sx={{ 
+                      width: 32, 
+                      height: 32, 
+                      mr: 1, 
+                      bgcolor: '#1A4D2E',
+                      fontSize: '14px'
+                    }}
+                  >
+                    {userData.fullName.charAt(0)}
+                  </Avatar>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Comic Sans MS', cursive",
+                      color: '#1A4D2E',
+                      fontWeight: 600
+                    }}
+                  >
+                    {userData.fullName}
+                  </Typography>
+                </Button>
+                <Menu
+                  id="profile-menu"
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                  MenuListProps={{
+                    'aria-labelledby': 'profile-button',
+                  }}
+                  PaperProps={{
+                    sx: {
+                      mt: 1,
+                      borderRadius: 2,
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                    }
+                  }}
+                >
+                  <MenuItem 
+                    onClick={handleLogout}
+                    sx={{ 
+                      fontFamily: "'Comic Sans MS', cursive",
+                      display: 'flex',
+                      alignItems: 'center',
+                      minWidth: '150px'
+                    }}
+                  >
+                    <LogoutIcon sx={{ mr: 1, fontSize: 20, color: '#D04848' }} />
+                    <Typography color="#D04848">Logout</Typography>
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <Button 
+                sx={{ 
+                  my: 2, 
+                  color: '#1A4D2E', 
+                  display: 'block',
+                  mx: 1,
+                  px: 2,
+                  fontFamily: "'Comic Sans MS', cursive",
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  }
+                }}
+                onClick={() => router.push('/Auth')}
+              >
+                Login
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </Container>

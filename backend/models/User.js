@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const userSchema = new mongoose.Schema({
+  userId: {
+    type: Number,
+    unique: true
+  },
   fullName: {
     type: String,
     required: true,
@@ -33,6 +38,9 @@ const userSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// Add auto-increment plugin for userId
+userSchema.plugin(AutoIncrement, { inc_field: 'userId' });
 
 // Export User model
 const User = mongoose.model('User', userSchema);
