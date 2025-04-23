@@ -115,7 +115,7 @@ export default function Navbar() {
   };
 
   // Modified nav items - removed 'Login'
-  const navItems = ['Home', 'About Us', 'Contact Us'];
+  const navItems = ['Home', 'About Us'];
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>

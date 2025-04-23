@@ -492,6 +492,7 @@ export default function Home() {
               <Button 
                 variant="contained" 
                 fullWidth
+                onClick={() => window.location.href = 'http://localhost:3000/ClimateBlog'}
                 sx={{
                   backgroundColor: '#1A4D2E',
                   '&:hover': {

@@ -1,6 +1,5 @@
+require('dotenv').config(); // load env vars
 const jwt = require('jsonwebtoken');
-
-const secret = 'asdfe45we45w345wegw345werjktjwertkj'; // ✅ Use the correct secret
 
 const authenticate = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -10,7 +9,8 @@ const authenticate = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, secret); // ✅ Correct secret here
+    const secret = process.env.JWT_SECRET; // ✅ Get secret from .env
+    const decoded = jwt.verify(token, secret);
     req.user = decoded;
     next();
   } catch (err) {
