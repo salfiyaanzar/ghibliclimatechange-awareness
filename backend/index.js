@@ -6,6 +6,7 @@ const cors = require('cors');
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const goalRoutes = require('./routes/goalRoutes');
+const postRoutes = require('./routes/postRoutes');
 
 const app = express();
 const secret = process.env.JWT_SECRET;
@@ -30,6 +31,7 @@ mongoose.connect(uri, {
 // Use routes
 app.use('/', authRoutes);
 app.use('/', goalRoutes);
+app.use('/', postRoutes);
 
 // Root
 app.get('/', (req, res) => {

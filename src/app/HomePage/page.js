@@ -10,10 +10,14 @@ import {
   Container, 
   Grid, 
   Paper,
-  CircularProgress
+  CircularProgress,
+  AppBar,
+  Toolbar
 } from '@mui/material';
 import Navbar from '../Navbar/page';
 import bgimage from '../../assets/hero3.jpg';
+import globe from '../../assets/worldmap.jpeg';
+
 
 export default function Home() {
   // State for Earth Day countdown
@@ -45,8 +49,18 @@ export default function Home() {
 
   return (
     <>
-    <Navbar />
-    {/* Hero Section - Keeping the same size as before */}
+    {/* Fixed Navbar */}
+    <AppBar position="fixed" sx={{ 
+      backgroundColor: '#fcffe0',
+      zIndex: 1000
+    }}>
+      <Toolbar>
+        <Navbar />
+      </Toolbar>
+    </AppBar>
+    <Toolbar /> {/* Spacer for fixed navbar */}
+    
+    {/* Hero Section */}
     <Box
       sx={{
         minHeight: '100vh',
@@ -93,7 +107,7 @@ export default function Home() {
             textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)'
           }}
         >
-          Earth’s Future: Act Now
+          Earth's Future: Act Now
         </Typography>
         
         <Typography 
@@ -158,6 +172,9 @@ export default function Home() {
             What You Should Know
           </Typography>
         </Box>
+
+        {/* Earth Day Countdown Widget - Redesigned to be smaller and cuter */}
+        
 
         {/* Cards Section - Modified to ensure horizontal alignment */}
         <Box sx={{ 
@@ -249,7 +266,7 @@ export default function Home() {
                 Calculate your impact and get personalized recommendations to reduce your carbon footprint.
               </Typography>
               
-                          <Button 
+              <Button 
                 variant="contained" 
                 fullWidth
                 onClick={() => window.location.href = 'http://localhost:3000/CarbonFootprintCalculator'}
@@ -266,9 +283,8 @@ export default function Home() {
                   fontWeight: 500
                 }}
               >
-  Calculate Now
-</Button>
-
+                Calculate Now
+              </Button>
             </CardContent>
           </Card>
           
@@ -511,153 +527,146 @@ export default function Home() {
             </CardContent>
           </Card>
         </Box>
-        
-        {/* Earth Day Countdown Section - Keeping as is */}
-        <Paper 
-          elevation={3}
-          sx={{
-            p: 5,
-            backgroundColor: '#FCFFE0',
-            borderRadius: 3,
-            position: 'relative',
-            overflow: 'hidden',
-            border: '1px solid #F1C8CB',
-            maxWidth: '700px',
-            mx: 'auto',
-            textAlign: 'center',
-            '&::after': {
-              content: '""',
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              width: '100%',
-              height: '30%',
-              background: 'linear-gradient(0deg, rgba(241, 200, 203, 0.2) 0%, rgba(255, 255, 255, 0) 100%)'
-            }
-          }}
-        >
-          <Typography 
-            variant="h4" 
-            component="h2" 
-            gutterBottom
-            sx={{ 
-              color: '#1A4D2E',
-              fontWeight: 600
-            }}
-          >
-            Earth Day Countdown
-          </Typography>
+      </Container>
+      <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          mb: 6
+        }}>
+        <Card sx={{
+          width: '320px',
+          bgcolor: '#f5ffef',
+          borderRadius: '16px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+          overflow: 'hidden',
+          border: '1px solid #e0f2e0',
+          p: 3,
+          position: 'relative'
+        }}>
+          {/* Spotify-like icon */}
+          <Box sx={{
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            bgcolor: '#1ed760',
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF">
+              <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.5 16.65C16.32 16.95 15.95 17.05 15.65 16.87C13.57 15.58 10.9 15.3 7.57 16.08C7.23 16.17 6.88 15.95 6.79 15.61C6.7 15.27 6.92 14.92 7.26 14.83C10.91 13.96 13.89 14.29 16.27 15.75C16.57 15.93 16.68 16.3 16.5 16.65ZM17.61 13.75C17.39 14.13 16.92 14.25 16.55 14.03C14.14 12.54 10.32 12.05 7.09 13.19C6.67 13.33 6.21 13.11 6.07 12.69C5.93 12.27 6.15 11.81 6.57 11.67C10.28 10.38 14.54 10.93 17.33 12.65C17.7 12.87 17.83 13.34 17.61 13.75Z" />
+            </svg>
+          </Box>
           
-          <Box 
-            sx={{ 
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
-              my: 4
-            }}
-          >
-            <CircularProgress 
-              variant="determinate" 
-              value={100 - (daysToEarthDay / 365 * 100)} 
-              size={160}
-              thickness={5}
-              sx={{ color: '#1A4D2E' }}
-            />
-            <Box
-              sx={{
-                position: 'absolute',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography
-                variant="h2"
-                component="div"
-                sx={{ 
-                  fontWeight: 'bold', 
-                  color: '#1A4D2E'
-                }}
-              >
-                {daysToEarthDay}
+          {/* Album art and info section */}
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <Box sx={{ 
+              width: 80, 
+              height: 80, 
+              bgcolor: '#e0f2e0', 
+              borderRadius: 1,
+              overflow: 'hidden'
+            }}>
+              <Box component="img" 
+                src={globe.src} 
+                alt="Earth art"
+                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </Box>
+            
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Typography variant="caption" sx={{ color: '#006400', fontWeight: 500 }}>
+                NOW PLAYING
+              </Typography>
+              <Typography variant="subtitle1" sx={{ color: '#006400', fontWeight: 700, mb: 0.5 }}>
+                Earth Day Countdown
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#006400', fontStyle: 'italic' }}>
+                Planet Rhythms
               </Typography>
             </Box>
           </Box>
           
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              mt: 2,
-              color: '#1A4D2E'
-            }}
-          >
-            Days until we celebrate our beautiful planet
-          </Typography>
+          {/* Countdown display */}
+          <Box sx={{ 
+            bgcolor: 'rgba(0, 100, 0, 0.05)', 
+            borderRadius: 2, 
+            p: 2, 
+            mb: 2 
+          }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h4" sx={{ color: '#006400', fontWeight: 700 }}>
+                {daysToEarthDay}
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#006400' }}>
+                days remaining
+              </Typography>
+            </Box>
+            
+            {/* Progress bar */}
+            <Box sx={{ width: '100%', bgcolor: '#d0e8d0', borderRadius: '4px', height: '6px', mt: 1 }}>
+              <Box sx={{ 
+                width: `${100 - (daysToEarthDay / 365 * 100)}%`, 
+                bgcolor: '#006400', 
+                height: '100%', 
+                borderRadius: '4px' 
+              }} />
+            </Box>
+          </Box>
           
-          <Typography
-            variant="body1"
-            sx={{
-              mt: 3,
-              fontStyle: 'italic',
-              color: '#1A4D2E'
-            }}
-          >
-            "The earth is a garden, we are all its caretakers"
-          </Typography>
-        </Paper>
-
-        {/* Call to Action Section - Keeping as is */}
-        <Box
-          sx={{
-            mt: 8,
-            p: 4,
-            backgroundColor: '#FCFFE0',
-            borderRadius: 3,
-            textAlign: 'center',
-            position: 'relative'
-          }}
-        >
-          <Typography 
-            variant="h5" 
-            component="h3"
-            sx={{ 
-              mb: 3,
-              color: '#1A4D2E',
-              fontWeight: 600
-            }}
-          >
-            Join Our Climate Journey
-          </Typography>
+          {/* Music controls */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box sx={{ color: '#006400' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 6C5.9 6 5 6.9 5 8V16C5 17.1 5.9 18 7 18H17C18.1 18 19 17.1 19 16V8C19 6.9 18.1 6 17 6H7Z" />
+              </svg>
+            </Box>
+            
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ color: '#006400' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 6H8V18H6V6ZM9.5 12L18 18V6L9.5 12Z" />
+                </svg>
+              </Box>
+              <Box sx={{ 
+                color: '#006400', 
+                bgcolor: '#d0e8d0', 
+                borderRadius: '50%', 
+                p: 1,
+                display: 'flex'
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5V19L19 12L8 5Z" />
+                </svg>
+              </Box>
+              <Box sx={{ color: '#006400' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 18H18V6H16V18ZM6 12L14.5 6V18L6 12Z" />
+                </svg>
+              </Box>
+            </Box>
+            
+            <Box sx={{ color: '#006400' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3V13.55C11.41 13.21 10.73 13 10 13C7.79 13 6 14.79 6 17C6 19.21 7.79 21 10 21C12.21 21 14 19.21 14 17V7H18V3H12Z" />
+              </svg>
+            </Box>
+          </Box>
           
-          <Typography 
-            variant="body1" 
-            paragraph
-            sx={{ color: '#1A4D2E' }}
-          >
-            Like the heroes in Ghibli films who protect their magical worlds, together we can safeguard our home.
+          {/* Footer message */}
+          <Typography variant="body2" sx={{ 
+            color: '#006400', 
+            textAlign: 'center', 
+            mt: 2, 
+            fontStyle: 'italic' 
+          }}>
+            hug our planet ♥
           </Typography>
-          
-          <Button 
-            variant="contained" 
-            sx={{
-              backgroundColor: '#1A4D2E',
-              '&:hover': {
-                backgroundColor: '#2C6E44',
-              },
-              color: '#FCFFE0',
-              py: 1.5,
-              px: 5,
-              fontSize: '1rem',
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: 500
-            }}
-          >
-            Learn More
-          </Button>
-        </Box>
-      </Container>
+        </Card>
+      </Box>
     </Box>
     </>
   );

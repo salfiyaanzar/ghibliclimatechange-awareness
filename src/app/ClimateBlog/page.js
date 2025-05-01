@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ThemeProvider, 
   createTheme, 
@@ -22,10 +22,14 @@ import {
   MenuItem,
   Select,
   FormControl,
-  InputLabel
+  InputLabel,
+  Snackbar,
+  Alert,
+  Pagination
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
-// Nature-inspired theme
+// Nature-inspired theme - keeping the same UI theme
 const natureTheme = createTheme({
   palette: {
     primary: {
@@ -105,49 +109,15 @@ const natureTheme = createTheme({
   },
 });
 
-// Sample blog data - climate action posts
-const initialBlogPosts = [
-    {
-        id: 1,
-        title: "Community Beach Cleanup - 50 Volunteers Strong!",
-        author: "Maya Chen",
-        excerpt: "Last weekend, I organized a beach cleanup that brought together 50 local residents. Together we collected over 200 pounds of plastic waste and recyclables. It was inspiring to see people of all ages working together for our oceans.",
-        category: "Community Action",
-        date: "April 18, 2025"
-    },
-    {
-        id: 2,
-        title: "My Zero-Waste Kitchen Journey",
-        author: "James Wilson",
-        excerpt: "Six months ago, I challenged myself to transition to a zero-waste kitchen. From composting to bulk shopping with reusable containers, I've reduced my household waste by 80%. Here are the practical steps that made the biggest difference.",
-        category: "Sustainable Living",
-        date: "April 15, 2025"
-    },
-    {
-        id: 3,
-        title: "School Garden Project: Teaching Kids About Food Systems",
-        author: "Priya Sharma", 
-        excerpt: "As a middle school teacher, I started a school garden project to connect students with where their food comes from. This year, we've grown over 15 different vegetables and donated surplus harvest to our local food bank.",
-        category: "Education",
-        date: "April 10, 2025"
-    },
-    {
-        id: 4,
-        title: "Solar Panel Installation: First Year Results",
-        author: "Marcus Johnson",
-        excerpt: "One year after installing solar panels on our roof, I'm sharing the real impact it's had on our energy bills and carbon footprint. The investment is paying off faster than expected and the process was easier than I thought.",
-        category: "Renewable Energy",
-        date: "April 5, 2025"
-    },
-    {
-        id: 5,
-        title: "Urban Tree Planting Initiative",
-        author: "Sofia Rodriguez",
-        excerpt: "Our neighborhood association partnered with the city to plant 100 new trees along our streets. I coordinated volunteer teams and tracked our progress. The difference in air quality and street temperature is already noticeable.",
-        category: "Urban Greening",
-        date: "April 1, 2025"
-    }
+// Updated categories to match the specified values
+const categories = [
+  'Community action', 
+  'Education', 
+  'Climate Policy'
 ];
+
+// API base URL - adjust this to match your backend URL
+const API_BASE_URL = 'http://localhost:5000';
 
 // Helper function to get first two lines (approximately 180 characters)
 const getTwoLines = (text) => {
@@ -155,31 +125,118 @@ const getTwoLines = (text) => {
   return text.substring(0, 180) + "...";
 };
 
-// Available categories
-const categories = [
-  'Community Action', 
-  'Sustainable Living', 
-  'Education', 
-  'Renewable Energy', 
-  'Urban Greening',
-  'Conservation',
-  'Climate Policy',
-  'Wildlife Protection'
-];
+// Format date helper function
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+};
 
 export default function ShareYourMoment() {
-  const [posts, setPosts] = useState(initialBlogPosts);
+  const router = useRouter();
+  const [posts, setPosts] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [newPost, setNewPost] = useState({
     title: '',
-    author: '',
-    excerpt: '',
-    category: 'Community Action',
+    text: '',
+    category: 'Community action',
   });
   const [activeCategory, setActiveCategory] = useState('All');
+  const [alert, setAlert] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 1
+  });
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // Get auth token from localStorage - consistent with ClimateActionGoals
+  const getAuthToken = () => localStorage.getItem('token');
+
+  // Check if user is logged in
+  useEffect(() => {
+    const token = getAuthToken();
+    setIsLoggedIn(!!token);
+  }, []);
+
+  // Fetch posts from API
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      let url = `${API_BASE_URL}/get-story?page=${pagination.page}&limit=${pagination.limit}`;
+      
+      if (searchTerm) {
+        url += `&search=${encodeURIComponent(searchTerm)}`;
+      }
+      
+      // Add authorization header if user is logged in
+      const headers = {};
+      const token = getAuthToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(url, { headers });
+      
+      if (!response.ok) {
+        // Handle unauthorized specifically
+        if (response.status === 401) {
+          setIsLoggedIn(false);
+          localStorage.removeItem('token'); // Clear invalid token
+          throw new Error('Please log in to view posts');
+        }
+        
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch posts');
+      }
+      
+      const data = await response.json();
+      setPosts(data.posts);
+      setPagination({
+        ...pagination,
+        total: data.total,
+        pages: data.pages
+      });
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: 'Failed to load posts: ' + error.message,
+        severity: 'error'
+      });
+      setPosts([]); // Clear posts on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load posts on initial render and when pagination changes
+  useEffect(() => {
+    fetchPosts();
+  }, [pagination.page, pagination.limit, searchTerm]);
 
   // Handle dialog open/close
-  const handleOpenDialog = () => setOpenDialog(true);
+  const handleOpenDialog = () => {
+    if (!isLoggedIn) {
+      setAlert({
+        open: true,
+        message: 'Please log in to share your story',
+        severity: 'warning'
+      });
+      return;
+    }
+    setOpenDialog(true);
+  };
+  
   const handleCloseDialog = () => setOpenDialog(false);
 
   // Handle form changes
@@ -192,45 +249,141 @@ export default function ShareYourMoment() {
   };
 
   // Handle post submission
-  const handleSubmitPost = () => {
+  const handleSubmitPost = async () => {
     // Validate form
-    if (!newPost.title || !newPost.author || !newPost.excerpt) {
-      return; // Don't submit if required fields are empty
+    if (!newPost.title || !newPost.text || !newPost.category) {
+      setAlert({
+        open: true,
+        message: 'Please fill in all required fields',
+        severity: 'error'
+      });
+      return;
     }
 
-    // Create new post
-    const post = {
-      id: posts.length + 1,
-      ...newPost,
-      date: new Date().toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      })
-    };
-
-    // Add to posts
-    setPosts([post, ...posts]);
-    
-    // Reset form and close dialog
-    setNewPost({
-      title: '',
-      author: '',
-      excerpt: '',
-      category: 'Community Action',
-    });
-    handleCloseDialog();
+    try {
+      const token = getAuthToken();
+      
+      if (!token) {
+        setAlert({
+          open: true,
+          message: 'You must be logged in to share a story',
+          severity: 'error'
+        });
+        return;
+      }
+      
+      // Submit to API using fetch
+      const response = await fetch(`${API_BASE_URL}/post-story`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: newPost.title,
+          text: newPost.text,
+          category: newPost.category
+        })
+      });
+      
+      if (!response.ok) {
+        // Handle unauthorized specifically
+        if (response.status === 401) {
+          setIsLoggedIn(false);
+          localStorage.removeItem('token'); // Clear invalid token
+          throw new Error('Your login session has expired. Please log in again.');
+        }
+        
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit post');
+      }
+      
+      // Show success alert
+      setAlert({
+        open: true,
+        message: 'Your story has been shared successfully!',
+        severity: 'success'
+      });
+      
+      // Reset form and close dialog
+      setNewPost({
+        title: '',
+        text: '',
+        category: 'Community action',
+      });
+      handleCloseDialog();
+      
+      // Refresh posts
+      fetchPosts();
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: 'Failed to share your story: ' + error.message,
+        severity: 'error'
+      });
+    }
   };
 
-  // Filter posts by category
-  const filteredPosts = activeCategory === 'All' 
-    ? posts 
-    : posts.filter(post => post.category === activeCategory);
-
-  // Handle category change
+  // Handle category change for filtering
   const handleCategoryChange = (category) => {
     setActiveCategory(category);
   };
+
+  // Handle pagination change
+  const handlePageChange = (event, value) => {
+    setPagination({
+      ...pagination,
+      page: value
+    });
+  };
+
+  // Handle search input
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Handle search submission
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setPagination({
+      ...pagination,
+      page: 1 // Reset to first page when searching
+    });
+    fetchPosts();
+  };
+
+  // Handle alert close
+  const handleAlertClose = () => {
+    setAlert({
+      ...alert,
+      open: false
+    });
+  };
+
+  // NEW: Handle post click to navigate to individual post page
+  const handlePostClick = (postId) => {
+    router.push(`http://localhost:3000/ClimateBlog/${postId}`);
+  };
+
+  // Check for token changes (e.g., if user logs in/out in another tab)
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      const token = getAuthToken();
+      setIsLoggedIn(!!token);
+    };
+
+    // Check login status when window gains focus
+    window.addEventListener('focus', checkLoginStatus);
+    
+    return () => {
+      window.removeEventListener('focus', checkLoginStatus);
+    };
+  }, []);
+
+  // Filter posts by category if not using backend filtering
+  const filteredPosts = activeCategory === 'All' 
+    ? posts 
+    : posts.filter(post => post.category === activeCategory);
 
   return (
     <ThemeProvider theme={natureTheme}>
@@ -295,6 +448,26 @@ export default function ShareYourMoment() {
             
             <Divider sx={{ mb: 4 }} />
             
+            {/* Search box */}
+            <Box sx={{ mb: 3 }}>
+              <form onSubmit={handleSearch}>
+                <TextField
+                  fullWidth
+                  placeholder="Search stories..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  variant="outlined"
+                  size="small"
+                  sx={{ mb: 2 }}
+                  InputProps={{
+                    endAdornment: (
+                      <Button type="submit" variant="contained" size="small">Search</Button>
+                    )
+                  }}
+                />
+              </form>
+            </Box>
+            
             {/* Categories filter */}
             <Stack 
               direction="row" 
@@ -322,11 +495,18 @@ export default function ShareYourMoment() {
             
             {/* Blog posts list */}
             <Stack spacing={3}>
-              {filteredPosts.length > 0 ? (
+              {loading ? (
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography variant="body1" color="text.secondary">
+                    Loading stories...
+                  </Typography>
+                </Box>
+              ) : filteredPosts.length > 0 ? (
                 filteredPosts.map((post) => (
                   <Paper
-                    key={post.id}
+                    key={post._id}
                     variant="outlined"
+                    onClick={() => handlePostClick(post._id)}
                     sx={{
                       p: 3,
                       borderRadius: 2,
@@ -355,7 +535,7 @@ export default function ShareYourMoment() {
                               }} 
                             />
                             <Typography variant="caption" color="text.secondary">
-                              {post.date}
+                              {formatDate(post.createdAt)}
                             </Typography>
                           </Box>
                           
@@ -382,7 +562,7 @@ export default function ShareYourMoment() {
                               WebkitLineClamp: 2,
                             }}
                           >
-                            {getTwoLines(post.excerpt)}
+                            {getTwoLines(post.text)}
                           </Typography>
                           
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -395,10 +575,10 @@ export default function ShareYourMoment() {
                                 fontSize: '0.875rem'
                               }}
                             >
-                              {post.author.charAt(0)}
+                              {post.author && post.author.username ? post.author.username.charAt(0).toUpperCase() : '?'}
                             </Avatar>
                             <Typography variant="body2" fontWeight={500}>
-                              {post.author}
+                              {post.author && post.author.username ? post.author.username : 'Anonymous'}
                             </Typography>
                           </Box>
                         </Box>
@@ -414,6 +594,18 @@ export default function ShareYourMoment() {
                 </Box>
               )}
             </Stack>
+            
+            {/* Pagination */}
+            {pagination.pages > 1 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <Pagination 
+                  count={pagination.pages} 
+                  page={pagination.page} 
+                  onChange={handlePageChange} 
+                  color="primary" 
+                />
+              </Box>
+            )}
           </Paper>
           
           <Box 
@@ -452,18 +644,7 @@ export default function ShareYourMoment() {
                 margin="dense"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="author"
-                label="Your Name"
-                fullWidth
-                required
-                value={newPost.author}
-                onChange={handleInputChange}
-                margin="dense"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
               <FormControl fullWidth margin="dense">
                 <InputLabel id="category-label">Category</InputLabel>
                 <Select
@@ -483,13 +664,13 @@ export default function ShareYourMoment() {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                name="excerpt"
+                name="text"
                 label="Your Post"
                 fullWidth
                 required
                 multiline
                 rows={6}
-                value={newPost.excerpt}
+                value={newPost.text}
                 onChange={handleInputChange}
                 margin="dense"
                 helperText="Share what you did, why it matters, and how others might get involved"
@@ -504,12 +685,24 @@ export default function ShareYourMoment() {
           <Button 
             onClick={handleSubmitPost} 
             variant="contained"
-            disabled={!newPost.title || !newPost.author || !newPost.excerpt}
+            disabled={!newPost.title || !newPost.text || !newPost.category}
           >
             Share My Story
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Alert/Snackbar for notifications */}
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={6000}
+        onClose={handleAlertClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleAlertClose} severity={alert.severity} variant="filled">
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

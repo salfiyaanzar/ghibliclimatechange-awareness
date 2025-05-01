@@ -1,20 +1,23 @@
-require('dotenv').config(); // load env vars
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 const authenticate = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-
-  if (!token) {
-    return res.status(401).json({ error: 'Authorization token is required' });
+  const authHeader = req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No token, authorization denied' });
   }
 
+  const token = authHeader.replace('Bearer ', '');
+
   try {
-    const secret = process.env.JWT_SECRET; // ✅ Get secret from .env
-    const decoded = jwt.verify(token, secret);
-    req.user = decoded;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = {
+      userId: decoded.userId,
+      email: decoded.email
+    };
     next();
   } catch (err) {
-    res.status(401).json({ error: 'Invalid or expired token' });
+    res.status(401).json({ error: 'Token is not valid' });
   }
 };
 
