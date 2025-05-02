@@ -11,16 +11,16 @@ const postRoutes = require('./routes/postRoutes');
 const app = express();
 const secret = process.env.JWT_SECRET;
 
-
-
 app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL] // Add your frontend URL in production
+    : ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true
 }));
 
 // MongoDB connection
-const uri = process.env.MONGO_URI; // use your actual URI
+const uri = process.env.MONGO_URI;
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -38,6 +38,7 @@ app.get('/', (req, res) => {
   res.send('Hello from Express and MongoDB!');
 });
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log(`🚀 Server is running on port ${process.env.PORT || 5000}`);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
 });
