@@ -24,6 +24,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useRouter } from 'next/navigation';
 
+const BACKEND_URL = 'https://ghibliclimatechange-awareness.onrender.com';
+
 export default function Navbar() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -37,33 +39,34 @@ export default function Navbar() {
     // Fetch user profile data when component mounts
     const fetchUserProfile = async () => {
       try {
-        // Get token from localStorage or wherever you store it
         const token = localStorage.getItem('token');
-        
         if (!token) {
-          // If no token, user is not logged in
+          // No token, user is not logged in
+          setUserData(null);
           return;
         }
 
-        const response = await fetch('http://localhost:5000/profile', {
+        const response = await fetch(`${BACKEND_URL}/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data.user);
-        } else {
-          // Handle error or unauthorized state
-          console.error('Failed to fetch user data');
-          // Optionally clear token if it's invalid
+        if (!response.ok) {
+          // Handle unauthorized or other errors
           if (response.status === 401) {
             localStorage.removeItem('token');
+            setUserData(null);
           }
+          throw new Error('Failed to fetch user data');
         }
+
+        const data = await response.json();
+        setUserData(data.user);
       } catch (error) {
+        // Network error, CORS error, or other fetch failure
         console.error('Error fetching user profile:', error);
+        setUserData(null); // Optionally clear user data
       }
     };
 
@@ -92,7 +95,7 @@ export default function Navbar() {
       }
 
       // Call the logout API
-      const response = await fetch('http://localhost:5000/logout', {
+      const response = await fetch(`${BACKEND_URL}/logout`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

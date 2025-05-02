@@ -117,7 +117,7 @@ const categories = [
 ];
 
 // API base URL - adjust this to match your backend URL
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://ghibliclimatechange-awareness.onrender.com';
 
 // Helper function to get first two lines (approximately 180 characters)
 const getTwoLines = (text) => {

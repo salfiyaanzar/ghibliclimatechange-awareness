@@ -78,6 +78,8 @@ const ghibliTheme = createTheme({
   },
 });
 
+const BACKEND_URL = 'https://ghibliclimatechange-awareness.onrender.com';
+
 function GhibliAuthPage() {
   const [tabValue, setTabValue] = useState(0); // 0 for Login, 1 for Register
   const [formData, setFormData] = useState({
@@ -104,7 +106,7 @@ function GhibliAuthPage() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
         
-        const response = await fetch('http://localhost:5000', {
+        const response = await fetch(`${BACKEND_URL}`, {
           method: 'HEAD',
           signal: controller.signal
         });
@@ -149,7 +151,7 @@ function GhibliAuthPage() {
     setTimeout(() => {
       if (type === 'login') {
         // Simulate successful login
-        window.location.href = 'http://localhost:3001';
+        window.location.href = 'http://localhost:3000/HomePage';
       } else {
         // Simulate successful registration
         setSnackbar({
@@ -188,7 +190,7 @@ function GhibliAuthPage() {
     try {
       if (type === 'login') {
         // Login API call
-        const response = await fetch('http://localhost:5000/login', {
+        const response = await fetch(`${BACKEND_URL}/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -232,7 +234,7 @@ function GhibliAuthPage() {
         }
         
         // Register API call
-        const response = await fetch('http://localhost:5000/register', {
+        const response = await fetch(`${BACKEND_URL}/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

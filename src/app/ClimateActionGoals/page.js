@@ -157,6 +157,8 @@ const goalSuggestions = {
   ]
 };
 
+const BACKEND_URL = 'https://ghibliclimatechange-awareness.onrender.com';
+
 // Main component
 export default function ClimateActionGoals() {
   const [goals, setGoals] = useState([]);
@@ -175,7 +177,7 @@ export default function ClimateActionGoals() {
     const fetchGoals = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/get-goals', {
+        const response = await fetch(`${BACKEND_URL}/get-goals`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
@@ -227,7 +229,7 @@ export default function ClimateActionGoals() {
     if (newGoalText.trim() === '') return;
     
     try {
-      const response = await fetch('http://localhost:5000/add-goal', {
+      const response = await fetch(`${BACKEND_URL}/add-goal`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -283,7 +285,7 @@ export default function ClimateActionGoals() {
       if (!goalToUpdate) return;
       
       // Use the new toggle-goal endpoint that supports both completing and uncompleting
-      const response = await fetch(`http://localhost:5000/toggle-goal/${id}`, {
+      const response = await fetch(`${BACKEND_URL}/toggle-goal/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -320,7 +322,7 @@ export default function ClimateActionGoals() {
   // Delete a goal
   const deleteGoal = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/delete-goal/${id}`, {
+      const response = await fetch(`${BACKEND_URL}/delete-goal/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,

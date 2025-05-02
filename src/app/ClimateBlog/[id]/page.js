@@ -112,7 +112,7 @@ const natureTheme = createTheme({
 });
 
 // API base URL - consistent with ShareYourMoment
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://ghibliclimatechange-awareness.onrender.com';
 
 // Format date helper function - matching the format in ShareYourMoment
 const formatDate = (dateString) => {

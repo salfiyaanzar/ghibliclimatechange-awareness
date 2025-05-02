@@ -12,12 +12,27 @@ const app = express();
 const secret = process.env.JWT_SECRET;
 
 app.use(express.json());
+const allowedOrigins = [
+  'https://ghibliclimateawareness-frontend.onrender.com', // your deployed frontend
+  'http://localhost:3000',
+  'http://localhost:3001'
+];
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.FRONTEND_URL] // Add your frontend URL in production
-    : ['http://localhost:3000', 'http://localhost:3001'],
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
+console.log('CORS allowed origins:', allowedOrigins);
+
+// Add preflight support for /profile
+app.options('/profile', cors());
 
 // MongoDB connection
 const uri = process.env.MONGO_URI;
