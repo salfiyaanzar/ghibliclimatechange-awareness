@@ -25,6 +25,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useRouter } from 'next/navigation';
 
 const BACKEND_URL = 'https://ghibliclimatechange-awareness.onrender.com';
+const FRONTEND_URL = 'https://ghibliclimatechange-awareness.vercel.app';
 
 export default function Navbar() {
   const theme = useTheme();

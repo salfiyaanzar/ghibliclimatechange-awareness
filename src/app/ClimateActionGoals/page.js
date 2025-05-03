@@ -158,6 +158,7 @@ const goalSuggestions = {
 };
 
 const BACKEND_URL = 'https://ghibliclimatechange-awareness.onrender.com';
+const FRONTEND_URL = 'https://ghibliclimatechange-awareness.vercel.app';
 
 // Main component
 export default function ClimateActionGoals() {

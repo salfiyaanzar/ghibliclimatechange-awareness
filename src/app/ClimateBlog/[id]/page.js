@@ -111,6 +111,7 @@ const natureTheme = createTheme({
 
 // API base URL - consistent with ShareYourMoment
 const API_BASE_URL = 'https://ghibliclimatechange-awareness.onrender.com';
+const FRONTEND_URL = 'https://ghibliclimatechange-awareness.vercel.app';
 
 // Format date helper function - matching the format in ShareYourMoment
 const formatDate = (dateString) => {
@@ -259,7 +260,7 @@ export default function ClimateBlogPost() {
 
   // Handle going back to main page
   const handleBack = () => {
-    router.push('/ClimateBlog'); // Navigate to the ShareYourMoment page
+    router.push(`${FRONTEND_URL}/ClimateBlog`); // Navigate to the ShareYourMoment page
   };
 
   // Handle share action
