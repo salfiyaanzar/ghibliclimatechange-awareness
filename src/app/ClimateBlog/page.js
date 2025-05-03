@@ -189,6 +189,7 @@ export default function ShareYourMoment() {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
+      console.log('Fetching posts from:', url);
       const response = await fetch(url, { headers });
       
       if (!response.ok) {
@@ -199,18 +200,27 @@ export default function ShareYourMoment() {
           throw new Error('Please log in to view posts');
         }
         
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch posts');
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+        throw new Error(errorData.error || `Failed to fetch posts: ${response.status}`);
       }
       
-      const data = await response.json();
-      setPosts(data.posts);
+      const data = await response.json().catch(() => {
+        throw new Error('Failed to parse response data');
+      });
+      
+      if (!data.posts && !Array.isArray(data)) {
+        console.error('Unexpected response format:', data);
+        throw new Error('Received invalid data format');
+      }
+      
+      setPosts(Array.isArray(data.posts) ? data.posts : (Array.isArray(data) ? data : []));
       setPagination({
         ...pagination,
-        total: data.total,
-        pages: data.pages
+        total: data.total || 0,
+        pages: data.pages || 1
       });
     } catch (error) {
+      console.error('Error fetching posts:', error);
       setAlert({
         open: true,
         message: 'Failed to load posts: ' + error.message,
@@ -365,7 +375,14 @@ export default function ShareYourMoment() {
 
   // NEW: Handle post click to navigate to individual post page
   const handlePostClick = (postId) => {
-    router.push(`${FRONTEND_URL}/ClimateBlog/${postId}`);
+    try {
+      // Use relative path instead of absolute URL to avoid navigation issues
+      router.push(`/ClimateBlog/${postId}`);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback to window.location if router fails
+      window.location.href = `${FRONTEND_URL}/ClimateBlog/${postId}`;
+    }
   };
 
   // Check for token changes (e.g., if user logs in/out in another tab)

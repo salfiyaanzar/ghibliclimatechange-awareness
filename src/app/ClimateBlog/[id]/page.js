@@ -211,6 +211,7 @@ export default function ClimateBlogPost() {
           headers['Authorization'] = `Bearer ${token}`;
         }
 
+        console.log('Fetching post:', postId);
         const response = await fetch(`${API_BASE_URL}/get-story/${postId}`, { 
           headers 
         });
@@ -221,11 +222,19 @@ export default function ClimateBlogPost() {
           } else if (response.status === 401) {
             throw new Error('You need to log in to view this post');
           } else {
-            throw new Error('Failed to load post');
+            throw new Error(`Failed to load post: ${response.status}`);
           }
         }
 
-        const data = await response.json();
+        const data = await response.json().catch(() => {
+          throw new Error('Failed to parse response data');
+        });
+        
+        if (!data.post && !data.title) {
+          console.error('Unexpected response format:', data);
+          throw new Error('Received invalid data format');
+        }
+
         // Set post data - SYNCHRONIZED with ShareYourMoment component
         setPost(data.post || data); // Handle both response formats
         
@@ -244,6 +253,7 @@ export default function ClimateBlogPost() {
           category: (data.post ? data.post.category : data.category) || ''
         });
       } catch (err) {
+        console.error('Error fetching post:', err);
         setError(err.message);
         setAlert({
           open: true,
@@ -256,11 +266,18 @@ export default function ClimateBlogPost() {
     };
 
     fetchPost();
-  }, [postId, getCurrentUserId]);
+  }, [postId]);
 
   // Handle going back to main page
   const handleBack = () => {
-    router.push(`${FRONTEND_URL}/ClimateBlog`); // Navigate to the ShareYourMoment page
+    try {
+      // Use relative path instead of absolute URL to avoid navigation issues
+      router.push('/ClimateBlog');
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback to window.location if router fails
+      window.location.href = `${FRONTEND_URL}/ClimateBlog`;
+    }
   };
 
   // Handle share action
