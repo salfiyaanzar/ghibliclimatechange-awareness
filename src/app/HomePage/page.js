@@ -107,7 +107,7 @@ export default function Home() {
             textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)'
           }}
         >
-          Earth's Future: Act Now
+          Earth&apos;s Future: Act Now
         </Typography>
         
         <Typography 

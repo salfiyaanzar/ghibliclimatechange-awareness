@@ -899,7 +899,7 @@ useEffect(() => {
                             Transportation
                           </Typography>
                           <Typography variant="body2" paragraph>
-                            "Take the train like Chihiro in Spirited Away. Embrace public transportation and reduce flight frequency."
+                            &quot;Take the train like Chihiro in Spirited Away. Embrace public transportation and reduce flight frequency.&quot;
                           </Typography>
                           <Typography variant="body2">
                             • Consider biking or walking for short trips
@@ -917,7 +917,7 @@ useEffect(() => {
                             Home & Energy
                           </Typography>
                           <Typography variant="body2" paragraph>
-                            "Live simply like Mei and Satsuki in My Neighbor Totoro. Reduce your energy use and connect with nature."
+                            &quot;Live simply like Mei and Satsuki in My Neighbor Totoro. Reduce your energy use and connect with nature.&quot;
                           </Typography>
                           <Typography variant="body2">
                             • Install energy-efficient appliances
@@ -935,7 +935,7 @@ useEffect(() => {
                             Diet & Consumption
                           </Typography>
                           <Typography variant="body2" paragraph>
-                            "Eat like in Princess Mononoke – local, plant-based, and with respect for the forest spirits."
+                            &quot;Eat like in Princess Mononoke – local, plant-based, and with respect for the forest spirits.&quot;
                           </Typography>
                           <Typography variant="body2">
                             • Reduce meat consumption
@@ -1052,7 +1052,7 @@ useEffect(() => {
         
         <Box sx={{ mt: 4, textAlign: 'center', color: 'text.secondary' }}>
           <Typography variant="body2">
-            GhibliClimate © {new Date().getFullYear()} | Inspired by Studio Ghibli's environmental themes
+            GhibliClimate © {new Date().getFullYear()} | Inspired by Studio Ghibli&apos;s environmental themes
           </Typography>
           <Typography variant="caption" display="block">
             Carbon calculations are approximate and based on average emission factors

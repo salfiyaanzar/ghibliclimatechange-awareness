@@ -638,7 +638,7 @@ export default function ClimateActionGoals() {
               fontSize: 14
             }}
           >
-            Inspired by Studio Ghibli's love for nature
+            Inspired by Studio Ghibli&apos;s love for nature
           </Box>
         </Container>
       </Box>

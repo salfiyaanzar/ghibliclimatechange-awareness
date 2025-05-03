@@ -222,7 +222,7 @@ export default function ShareYourMoment() {
   // Load posts on initial render and when pagination changes
   useEffect(() => {
     fetchPosts();
-  }, [pagination.page, pagination.limit, searchTerm]);
+  }, [fetchPosts]);
 
   // Handle dialog open/close
   const handleOpenDialog = () => {
@@ -629,7 +629,7 @@ export default function ShareYourMoment() {
         </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 3 }}>
-            Tell others about what you've done to help the environment or raise awareness about climate change.
+            Tell others about what you&apos;ve done to help the environment or raise awareness about climate change.
           </DialogContentText>
           
           <Grid container spacing={3}>

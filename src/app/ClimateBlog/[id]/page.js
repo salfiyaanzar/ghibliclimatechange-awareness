@@ -255,7 +255,8 @@ export default function ClimateBlogPost() {
     };
 
     fetchPost();
-  }, [postId]);
+    getCurrentUserId();
+  }, [postId, getCurrentUserId]);
 
   // Handle going back to main page
   const handleBack = () => {

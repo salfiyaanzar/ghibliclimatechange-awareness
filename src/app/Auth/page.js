@@ -467,7 +467,7 @@ function GhibliAuthPage() {
               <Box sx={{ p: 2, textAlign: 'center' }}>
                 <Typography variant="body2" color="text.secondary">
                   GhibliClimate © {new Date().getFullYear()} | Inspired by Studio
-                  Ghibli's environmental themes
+                  Ghibli&apos;s environmental themes
                 </Typography>
               </Box>
             </Paper>
