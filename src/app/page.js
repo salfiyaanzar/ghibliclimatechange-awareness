@@ -11,13 +11,8 @@ const FRONTEND_URL = 'https://ghibliclimatechange-awareness.vercel.app';
 export default function Page() {
   const router = useRouter();
   
-  useEffect(() => {
-    // Check if we're on the root path in production
-    if (window.location.pathname === '/' && 
-        window.location.hostname === 'ghibliclimatechange-awareness.vercel.app') {
-      router.push('/HomePage');
-    }
-  }, [router]);
+  // No auto-redirect - we want users to start at the Auth page
+  // The Auth page will redirect authenticated users to HomePage after login
   
   return <Auth />;
 }
