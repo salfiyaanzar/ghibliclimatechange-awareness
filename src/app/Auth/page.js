@@ -79,6 +79,7 @@ const ghibliTheme = createTheme({
 });
 
 const BACKEND_URL = 'https://ghibliclimatechange-awareness.onrender.com';
+const FRONTEND_URL = 'https://ghibliclimatechange-awareness.vercel.app';
 
 function GhibliAuthPage() {
   const [tabValue, setTabValue] = useState(0); // 0 for Login, 1 for Register
@@ -151,7 +152,7 @@ function GhibliAuthPage() {
     setTimeout(() => {
       if (type === 'login') {
         // Simulate successful login
-        window.location.href = 'http://localhost:3000/HomePage';
+        window.location.href = `${FRONTEND_URL}/HomePage`;
       } else {
         // Simulate successful registration
         setSnackbar({
@@ -212,7 +213,7 @@ function GhibliAuthPage() {
           }
           
           // Redirect to dashboard on successful login
-          window.location.href = 'http://localhost:3000/HomePage';
+          window.location.href = `${FRONTEND_URL}/HomePage`;
         } else {
           // Display error message
           setSnackbar({

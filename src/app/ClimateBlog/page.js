@@ -29,6 +29,9 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 
+// Define frontend URL for production
+const FRONTEND_URL = 'https://ghibliclimatechange-awareness.vercel.app';
+
 // Nature-inspired theme - keeping the same UI theme
 const natureTheme = createTheme({
   palette: {
@@ -362,7 +365,7 @@ export default function ShareYourMoment() {
 
   // NEW: Handle post click to navigate to individual post page
   const handlePostClick = (postId) => {
-    router.push(`http://localhost:3000/ClimateBlog/${postId}`);
+    router.push(`${FRONTEND_URL}/ClimateBlog/${postId}`);
   };
 
   // Check for token changes (e.g., if user logs in/out in another tab)

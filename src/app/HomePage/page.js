@@ -18,6 +18,7 @@ import Navbar from '../Navbar/page';
 import bgimage from '../../assets/hero3.jpg';
 import globe from '../../assets/worldmap.jpeg';
 
+const FRONTEND_URL = 'https://ghibliclimatechange-awareness.vercel.app';
 
 export default function Home() {
   // State for Earth Day countdown
@@ -269,7 +270,7 @@ export default function Home() {
               <Button 
                 variant="contained" 
                 fullWidth
-                onClick={() => window.location.href = 'http://localhost:3000/CarbonFootprintCalculator'}
+                onClick={() => window.location.href = `${FRONTEND_URL}/CarbonFootprintCalculator`}
                 sx={{
                   backgroundColor: '#1A4D2E',
                   '&:hover': {
@@ -385,7 +386,7 @@ export default function Home() {
               <Button 
                 variant="contained" 
                 fullWidth
-                onClick={() => window.location.href = 'http://localhost:3000/ClimateActionGoals'}
+                onClick={() => window.location.href = `${FRONTEND_URL}/ClimateActionGoals`}
                 sx={{
                   backgroundColor: '#1A4D2E',
                   '&:hover': {
@@ -508,7 +509,7 @@ export default function Home() {
               <Button 
                 variant="contained" 
                 fullWidth
-                onClick={() => window.location.href = 'http://localhost:3000/ClimateBlog'}
+                onClick={() => window.location.href = `${FRONTEND_URL}/ClimateBlog`}
                 sx={{
                   backgroundColor: '#1A4D2E',
                   '&:hover': {
