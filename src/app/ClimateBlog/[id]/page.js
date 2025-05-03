@@ -197,6 +197,7 @@ export default function ClimateBlogPost() {
 
   // Fetch post data
   useEffect(() => {
+    let isMounted = true;
     const fetchPost = async () => {
       if (!postId) return;
 
@@ -235,37 +236,51 @@ export default function ClimateBlogPost() {
           throw new Error('Received invalid data format');
         }
 
-        // Set post data - SYNCHRONIZED with ShareYourMoment component
-        setPost(data.post || data); // Handle both response formats
-        
-        // Check if the current user is the author
-        const currentUserId = getCurrentUserId();
-        if (currentUserId && data.post && data.post.author && data.post.author.userId === currentUserId) {
-          setIsAuthor(true);
-        } else if (currentUserId && data.author && data.author.userId === currentUserId) {
-          setIsAuthor(true);
+        // Only update state if component is still mounted
+        if (isMounted) {
+          // Set post data - SYNCHRONIZED with ShareYourMoment component
+          setPost(data.post || data); // Handle both response formats
+          
+          // Check if the current user is the author
+          const currentUserId = getCurrentUserId();
+          if (currentUserId && data.post && data.post.author && data.post.author.userId === currentUserId) {
+            setIsAuthor(true);
+          } else if (currentUserId && data.author && data.author.userId === currentUserId) {
+            setIsAuthor(true);
+          }
+          
+          // Initialize edit form with post data
+          setEditFormData({
+            title: (data.post ? data.post.title : data.title) || '',
+            text: (data.post ? data.post.text : data.text) || '',
+            category: (data.post ? data.post.category : data.category) || ''
+          });
         }
-        
-        // Initialize edit form with post data
-        setEditFormData({
-          title: (data.post ? data.post.title : data.title) || '',
-          text: (data.post ? data.post.text : data.text) || '',
-          category: (data.post ? data.post.category : data.category) || ''
-        });
       } catch (err) {
         console.error('Error fetching post:', err);
-        setError(err.message);
-        setAlert({
-          open: true,
-          message: err.message,
-          severity: 'error'
-        });
+        if (isMounted) {
+          setError(err.message);
+          setAlert({
+            open: true,
+            message: err.message,
+            severity: 'error'
+          });
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchPost();
+    
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
+  // Use a stable ref to getCurrentUserId instead of the function itself
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId]);
 
   // Handle going back to main page

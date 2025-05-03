@@ -91,6 +91,7 @@ export default function Navbar() {
       const token = localStorage.getItem('token');
       
       if (!token) {
+        // Use relative path for navigation
         router.push('/Auth');
         return;
       }
@@ -106,13 +107,20 @@ export default function Navbar() {
       if (response.ok) {
         // Remove token from local storage
         localStorage.removeItem('token');
-        // Redirect to Auth page
+        // Redirect to Auth page with relative path
         router.push('/Auth');
       } else {
         console.error('Logout failed');
       }
     } catch (error) {
       console.error('Error during logout:', error);
+      // Fallback if router fails
+      try {
+        localStorage.removeItem('token');
+        window.location.href = '/Auth';
+      } catch (e) {
+        console.error('Fallback navigation failed:', e);
+      }
     } finally {
       handleClose(); // Close the menu regardless of outcome
     }

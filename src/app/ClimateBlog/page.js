@@ -172,70 +172,81 @@ export default function ShareYourMoment() {
     setIsLoggedIn(!!token);
   }, []);
 
-  // Fetch posts from API
-  const fetchPosts = async () => {
-    try {
-      setLoading(true);
-      let url = `${API_BASE_URL}/get-story?page=${pagination.page}&limit=${pagination.limit}`;
-      
-      if (searchTerm) {
-        url += `&search=${encodeURIComponent(searchTerm)}`;
-      }
-      
-      // Add authorization header if user is logged in
-      const headers = {};
-      const token = getAuthToken();
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
-      console.log('Fetching posts from:', url);
-      const response = await fetch(url, { headers });
-      
-      if (!response.ok) {
-        // Handle unauthorized specifically
-        if (response.status === 401) {
-          setIsLoggedIn(false);
-          localStorage.removeItem('token'); // Clear invalid token
-          throw new Error('Please log in to view posts');
-        }
-        
-        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
-        throw new Error(errorData.error || `Failed to fetch posts: ${response.status}`);
-      }
-      
-      const data = await response.json().catch(() => {
-        throw new Error('Failed to parse response data');
-      });
-      
-      if (!data.posts && !Array.isArray(data)) {
-        console.error('Unexpected response format:', data);
-        throw new Error('Received invalid data format');
-      }
-      
-      setPosts(Array.isArray(data.posts) ? data.posts : (Array.isArray(data) ? data : []));
-      setPagination({
-        ...pagination,
-        total: data.total || 0,
-        pages: data.pages || 1
-      });
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-      setAlert({
-        open: true,
-        message: 'Failed to load posts: ' + error.message,
-        severity: 'error'
-      });
-      setPosts([]); // Clear posts on error
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Load posts on initial render and when pagination changes
   useEffect(() => {
-    fetchPosts();
-  }, [pagination.page, pagination.limit, searchTerm, fetchPosts]);
+    // Create a stable reference to fetchPosts
+    const loadPosts = async () => {
+      try {
+        setLoading(true);
+        let url = `${API_BASE_URL}/get-story?page=${pagination.page}&limit=${pagination.limit}`;
+        
+        if (searchTerm) {
+          url += `&search=${encodeURIComponent(searchTerm)}`;
+        }
+        
+        // Add authorization header if user is logged in
+        const headers = {};
+        const token = getAuthToken();
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        console.log('Fetching posts from:', url);
+        const response = await fetch(url, { headers });
+        
+        if (!response.ok) {
+          // Handle unauthorized specifically
+          if (response.status === 401) {
+            setIsLoggedIn(false);
+            localStorage.removeItem('token'); // Clear invalid token
+            throw new Error('Please log in to view posts');
+          }
+          
+          const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+          throw new Error(errorData.error || `Failed to fetch posts: ${response.status}`);
+        }
+        
+        const data = await response.json().catch(() => {
+          throw new Error('Failed to parse response data');
+        });
+        
+        if (!data.posts && !Array.isArray(data)) {
+          console.error('Unexpected response format:', data);
+          throw new Error('Received invalid data format');
+        }
+        
+        setPosts(Array.isArray(data.posts) ? data.posts : (Array.isArray(data) ? data : []));
+        setPagination({
+          ...pagination,
+          total: data.total || 0,
+          pages: data.pages || 1
+        });
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+        setAlert({
+          open: true,
+          message: 'Failed to load posts: ' + error.message,
+          severity: 'error'
+        });
+        setPosts([]); // Clear posts on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPosts();
+    // Only run when pagination.page or searchTerm change, not on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, pagination.limit, searchTerm]);
+
+  // Replacing the original fetchPosts function with a stable version that won't trigger re-renders
+  const fetchPosts = () => {
+    // Reset to first page when searching
+    setPagination(prev => ({
+      ...prev,
+      page: 1
+    }));
+  };
 
   // Handle dialog open/close
   const handleOpenDialog = () => {
