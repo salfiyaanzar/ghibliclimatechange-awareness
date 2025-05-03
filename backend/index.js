@@ -13,7 +13,7 @@ const secret = process.env.JWT_SECRET;
 
 app.use(express.json());
 const allowedOrigins = [
-  'https://ghibliclimateawareness-frontend.onrender.com', // your deployed frontend
+  'https://ghibliclimatechange-awareness.vercel.app', // your deployed frontend
   'http://localhost:3000',
   'http://localhost:3001'
 ];
