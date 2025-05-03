@@ -188,7 +188,7 @@ export default function ClimateActionGoals() {
         }
         
         const data = await response.json();
-        setGoals(data);
+        setGoals(Array.isArray(data.goals) ? data.goals : (Array.isArray(data) ? data : []));
       } catch (err) {
         console.error('Error fetching goals:', err);
         setError('Failed to load goals. Using sample data instead.');
@@ -246,9 +246,9 @@ export default function ClimateActionGoals() {
         throw new Error('Failed to add goal');
       }
       
-      const savedGoal = await response.json();
+      const savedGoalResponse = await response.json();
+      const savedGoal = savedGoalResponse.goal; // Only the goal object
       
-      // Add the new goal with the structure returned from the API
       setGoals([...goals, savedGoal]);
       setNewGoalText('');
       setShowSuggestions(false);
@@ -330,7 +330,8 @@ export default function ClimateActionGoals() {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to delete goal');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete goal');
       }
       
       // Remove goal from state
@@ -344,7 +345,7 @@ export default function ClimateActionGoals() {
       console.error('Error deleting goal:', err);
       setNotification({
         open: true,
-        message: 'Failed to delete goal. Please try again.',
+        message: err.message || 'Failed to delete goal. Please try again.',
         severity: 'error'
       });
     }
@@ -576,9 +577,9 @@ export default function ClimateActionGoals() {
                 </Box>
               ) : (
                 <List sx={{ p: 0 }}>
-                  {filteredGoals.map((goal) => (
+                  {filteredGoals.map((goal, idx) => (
                     <ListItem
-                      key={goal._id}
+                      key={goal._id || idx}
                       sx={{
                         borderRadius: 2,
                         mb: 1,
@@ -613,7 +614,7 @@ export default function ClimateActionGoals() {
                       </ListItemIcon>
                       <ListItemText
                         primary={goal.goal}
-                        secondary={`Category: ${goal.category.charAt(0).toUpperCase() + goal.category.slice(1)}`}
+                        secondary={`Category: ${goal.category ? (goal.category.charAt(0).toUpperCase() + goal.category.slice(1)) : 'Unknown'}`}
                         sx={{
                           '& .MuiTypography-root:first-of-type': {
                             textDecoration: goal.completed ? 'line-through' : 'none',

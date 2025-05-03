@@ -26,9 +26,7 @@ import {
   MenuItem
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
 import EditIcon from '@mui/icons-material/Edit';
 
 // Nature-inspired theme - keeping the same UI theme from ShareYourMoment
@@ -163,8 +161,6 @@ export default function ClimateBlogPost() {
     message: '',
     severity: 'success'
   });
-  const [liked, setLiked] = useState(false);
-  const [bookmarked, setBookmarked] = useState(false);
   
   // Edit mode states
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -246,12 +242,6 @@ export default function ClimateBlogPost() {
           text: (data.post ? data.post.text : data.text) || '',
           category: (data.post ? data.post.category : data.category) || ''
         });
-        
-        // Check if user has liked or bookmarked this post
-        if (data.userInteractions) {
-          setLiked(data.userInteractions.liked);
-          setBookmarked(data.userInteractions.bookmarked);
-        }
       } catch (err) {
         setError(err.message);
         setAlert({
@@ -270,86 +260,6 @@ export default function ClimateBlogPost() {
   // Handle going back to main page
   const handleBack = () => {
     router.push('/ClimateBlog'); // Navigate to the ShareYourMoment page
-  };
-
-  // Handle like action
-  const handleLike = async () => {
-    const token = getAuthToken();
-    if (!token) {
-      setAlert({
-        open: true,
-        message: 'Please log in to like posts',
-        severity: 'warning'
-      });
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/like-story/${postId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to like post');
-      }
-
-      setLiked(!liked);
-      setAlert({
-        open: true,
-        message: liked ? 'Removed like from post' : 'Added like to post',
-        severity: 'success'
-      });
-    } catch (err) {
-      setAlert({
-        open: true,
-        message: err.message,
-        severity: 'error'
-      });
-    }
-  };
-
-  // Handle bookmark action
-  const handleBookmark = async () => {
-    const token = getAuthToken();
-    if (!token) {
-      setAlert({
-        open: true,
-        message: 'Please log in to bookmark posts',
-        severity: 'warning'
-      });
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/bookmark-story/${postId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to bookmark post');
-      }
-
-      setBookmarked(!bookmarked);
-      setAlert({
-        open: true,
-        message: bookmarked ? 'Removed from bookmarks' : 'Added to bookmarks',
-        severity: 'success'
-      });
-    } catch (err) {
-      setAlert({
-        open: true,
-        message: err.message,
-        severity: 'error'
-      });
-    }
   };
 
   // Handle share action
@@ -545,8 +455,8 @@ export default function ClimateBlogPost() {
                 p: { xs: 3, md: 5 },
                 borderRadius: 3,
                 backgroundColor: '#FCFFE0',
-                border: '1px solid #E0E0E0',
-                boxShadow: '0 12px 24px rgba(0,0,0,0.1)',
+                border: '1px solid #DDDDDD',  // Added light thin border
+                boxShadow: '0 12px 24px rgba(0,0,0,0.08)',
               }}
             >
               {/* Edit button (only visible to author) */}
@@ -626,33 +536,11 @@ export default function ClimateBlogPost() {
 
               <Divider sx={{ mb: 3 }} />
 
-              {/* Action buttons */}
+              {/* Share button only */}
               <Box sx={{ 
                 display: 'flex', 
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: 1
+                justifyContent: 'flex-end',
               }}>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button
-                    startIcon={<FavoriteIcon />}
-                    variant={liked ? "contained" : "outlined"}
-                    color={liked ? "primary" : "primary"}
-                    onClick={handleLike}
-                    size="small"
-                  >
-                    {liked ? 'Liked' : 'Like'}
-                  </Button>
-                  <Button
-                    startIcon={<BookmarkIcon />}
-                    variant={bookmarked ? "contained" : "outlined"}
-                    color="primary"
-                    onClick={handleBookmark}
-                    size="small"
-                  >
-                    {bookmarked ? 'Saved' : 'Save'}
-                  </Button>
-                </Box>
                 <Button
                   startIcon={<ShareIcon />}
                   variant="outlined"

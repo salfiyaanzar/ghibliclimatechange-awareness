@@ -48,6 +48,11 @@ app.use('/', authRoutes);
 app.use('/', goalRoutes);
 app.use('/', postRoutes);
 
+// Health check endpoint for cron job
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
 // Root
 app.get('/', (req, res) => {
   res.send('Hello from Express and MongoDB!');
