@@ -222,7 +222,7 @@ export default function ShareYourMoment() {
   // Load posts on initial render and when pagination changes
   useEffect(() => {
     fetchPosts();
-  }, [fetchPosts]);
+  }, [pagination.page, pagination.limit, searchTerm, fetchPosts]);
 
   // Handle dialog open/close
   const handleOpenDialog = () => {

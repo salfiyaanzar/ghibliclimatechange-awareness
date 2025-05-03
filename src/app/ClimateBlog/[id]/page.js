@@ -572,11 +572,11 @@ export default function ClimateBlogPost() {
             </Paper>
           ) : null}
 
-          <Box
+          <Box 
             component="footer"
-            sx={{
-              textAlign: 'center',
-              mt: 4,
+            sx={{ 
+              textAlign: 'center', 
+              mt: 2, 
               color: 'text.secondary',
               fontSize: 14
             }}

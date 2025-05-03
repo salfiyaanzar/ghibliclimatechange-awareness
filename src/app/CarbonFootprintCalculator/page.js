@@ -935,7 +935,7 @@ useEffect(() => {
                             Diet & Consumption
                           </Typography>
                           <Typography variant="body2" paragraph>
-                            &quot;Eat like in Princess Mononoke – local, plant-based, and with respect for the forest spirits.&quot;
+                            &quot;Eat like in Princess Mononoke &ndash; local, plant-based, and with respect for the forest spirits.&quot;
                           </Typography>
                           <Typography variant="body2">
                             • Reduce meat consumption
