@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Auth from './Auth/page';
 
-// Simple component without any redirection logic
+// Simple component that shows Auth page first
 export default function Page() {
   return <Auth />;
 }

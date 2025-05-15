@@ -24,8 +24,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useRouter } from 'next/navigation';
 
-const BACKEND_URL = 'https://ghibliclimatechange-awareness.onrender.com';
-const FRONTEND_URL = 'https://ghibliclimatechange-awareness.vercel.app';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000';
 
 export default function Navbar() {
   const theme = useTheme();

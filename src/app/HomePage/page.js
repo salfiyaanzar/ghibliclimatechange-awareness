@@ -12,17 +12,40 @@ import {
   Paper,
   CircularProgress,
   AppBar,
-  Toolbar
+  Toolbar,
+  Slide
 } from '@mui/material';
 import Navbar from '../Navbar/page';
 import bgimage from '../../assets/hero3.jpg';
 import globe from '../../assets/worldmap.jpeg';
 
-const FRONTEND_URL = 'https://ghibliclimatechange-awareness.vercel.app';
+const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000';
 
 export default function Home() {
   // State for Earth Day countdown
   const [daysToEarthDay, setDaysToEarthDay] = useState(0);
+  // State for navbar visibility
+  const [showNav, setShowNav] = useState(false);
+  
+  // Handle scroll event to show/hide navbar
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show navbar after scrolling down 100px
+      if (window.scrollY > 100) {
+        setShowNav(true);
+      } else {
+        setShowNav(false);
+      }
+    };
+    
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScroll);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
   
   // Calculate days until next Earth Day (April 22nd)
   useEffect(() => {
@@ -50,30 +73,34 @@ export default function Home() {
 
   return (
     <>
-    {/* Fixed Navbar */}
-    <AppBar position="fixed" sx={{ 
-      backgroundColor: '#fcffe0',
-      zIndex: 1000
-    }}>
-      <Toolbar>
-        <Navbar />
-      </Toolbar>
-    </AppBar>
-    <Toolbar /> {/* Spacer for fixed navbar */}
+    {/* Navbar that appears on scroll */}
+    <Slide appear={false} direction="down" in={showNav}>
+      <AppBar position="fixed" sx={{ 
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backdropFilter: 'blur(10px)',
+        boxShadow: 0,
+        zIndex: 1000
+      }}>
+        <Toolbar>
+          <Navbar />
+        </Toolbar>
+      </AppBar>
+    </Slide>
     
-    {/* Hero Section */}
+    {/* Hero Section with full-screen background like Fred Marcus */}
     <Box
       sx={{
-        minHeight: '100vh',
+        height: '100vh',
+        width: '100%',
         backgroundImage: `url(${bgimage.src})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        pb: 8,
         '&::before': {
           content: '""',
           position: 'absolute',
@@ -81,11 +108,9 @@ export default function Home() {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'linear-gradient(rgba(85, 107, 47, 0.4), rgba(107, 142, 35, 0.4))', // Earthy green mist gradient
+          background: 'linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5))', // Subtle gradient overlay
           zIndex: 1
         },
-        zIndex: 2,
-        position: 'relative',
       }}
     >
       <Container 
@@ -101,48 +126,107 @@ export default function Home() {
           variant="h1" 
           component="h1"
           sx={{ 
-            color: '#FCFFE0',
-            fontWeight: 700,
-            fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4.5rem' },
+            color: '#FFFFFF',
+            fontWeight: 300,
+            fontSize: { xs: '2.5rem', sm: '3.5rem', md: '5rem' },
+            letterSpacing: '0.2em',
             mb: 3,
-            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)'
+            textTransform: 'uppercase',
+            fontFamily: '"Playfair Display", serif',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
           }}
         >
-          Earth&apos;s Future: Act Now
+          Earth&apos;s Future
         </Typography>
         
         <Typography 
           variant="h5"
           component="p"
           sx={{ 
-            color: '#FCFFE0',
+            color: '#FFFFFF',
             mb: 6,
             maxWidth: '800px',
             mx: 'auto',
-            textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)'
+            fontWeight: 300,
+            letterSpacing: '0.05em',
+            fontFamily: '"Montserrat", sans-serif',
+            textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
           }}
         >
-          Helping people work together for a better future by learning about and supporting efforts to protect the environment.
+          Over 80 years of caring for our planet.
         </Typography>
         
         <Button 
-          variant="contained"
+          variant="outlined"
           size="large"
           sx={{
-            backgroundColor: '#FCFFE0',
+            borderColor: '#FFFFFF',
             '&:hover': {
-              backgroundColor: '#7E8C69',
+              borderColor: '#FFFFFF',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
             },
-            color: '#1A4D2E',
+            color: '#FFFFFF',
             px: 4,
             py: 1.5,
-            fontSize: '1.1rem',
-            borderRadius: '30px'
+            fontSize: '1rem',
+            borderRadius: '0px', // Sharp corners for elegance
+            letterSpacing: '0.1em',
+            fontWeight: 300,
+            textTransform: 'uppercase'
           }}
         >
-          Learn More
+          Discover More
         </Button>
       </Container>
+      
+      {/* Scroll down indicator */}
+      <Box sx={{ 
+        position: 'absolute', 
+        bottom: 40, 
+        left: '50%', 
+        transform: 'translateX(-50%)',
+        zIndex: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        color: '#FFFFFF',
+        opacity: 0.8,
+        cursor: 'pointer',
+        transition: 'opacity 0.3s ease',
+        '&:hover': {
+          opacity: 1
+        }
+      }}>
+        <Typography variant="body2" sx={{ mb: 1, letterSpacing: '0.2em', textTransform: 'uppercase', fontSize: '0.8rem' }}>
+          Scroll Down
+        </Typography>
+        <Box sx={{ 
+          width: '30px', 
+          height: '30px', 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          animation: 'bounce 2s infinite'
+        }}>
+          {/* Arrow down icon */}
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 10L12 15L17 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </Box>
+        <style jsx global>{`
+          @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+              transform: translateY(0);
+            }
+            40% {
+              transform: translateY(-10px);
+            }
+            60% {
+              transform: translateY(-5px);
+            }
+          }
+        `}</style>
+      </Box>
     </Box>
     
     {/* Main Content Section */}
@@ -164,18 +248,17 @@ export default function Home() {
             component="h1" 
             sx={{ 
               color: '#1A4D2E',
-              fontWeight: 700,
+              fontWeight: 300,
               fontSize: { xs: '2.5rem', sm: '3rem', md: '3.5rem' },
-              textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',
-              display: 'inline-block'
+              letterSpacing: '0.1em',
+              display: 'inline-block',
+              textTransform: 'uppercase',
+              fontFamily: '"Playfair Display", serif'
             }}
           >
             What You Should Know
           </Typography>
         </Box>
-
-        {/* Earth Day Countdown Widget - Redesigned to be smaller and cuter */}
-        
 
         {/* Cards Section - Modified to ensure horizontal alignment */}
         <Box sx={{ 
@@ -194,13 +277,14 @@ export default function Home() {
               display: 'flex',
               flexDirection: 'column',
               backgroundColor: '#FCFFE0',
-              borderRadius: 3,
+              borderRadius: 0, // Sharp corners for elegance
               overflow: 'hidden',
-              border: '1px solid #F1C8CB',
+              border: 'none',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
               transition: 'transform 0.3s ease',
               '&:hover': {
                 transform: 'translateY(-5px)',
-                boxShadow: '0 5px 10px rgba(0,0,0,0.1)'
+                boxShadow: '0 12px 24px rgba(0,0,0,0.12)'
               }
             }}
           >
@@ -238,9 +322,11 @@ export default function Home() {
                 component="div"
                 sx={{ 
                   color: '#1A4D2E',
-                  fontWeight: 600,
+                  fontWeight: 400,
                   textAlign: 'center',
-                  pb: 1
+                  pb: 1,
+                  letterSpacing: '0.05em',
+                  fontFamily: '"Montserrat", sans-serif'
                 }}
               >
                 Find Your Carbon Footprint
@@ -279,9 +365,10 @@ export default function Home() {
                   color: '#FCFFE0',
                   py: 1,
                   fontSize: '0.9rem',
-                  borderRadius: '8px',
-                  textTransform: 'none',
-                  fontWeight: 500
+                  borderRadius: 0, // Sharp corners for elegance
+                  textTransform: 'uppercase',
+                  fontWeight: 400,
+                  letterSpacing: '0.05em'
                 }}
               >
                 Calculate Now
@@ -298,13 +385,14 @@ export default function Home() {
               display: 'flex',
               flexDirection: 'column',
               backgroundColor: '#FCFFE0',
-              borderRadius: 3,
+              borderRadius: 0, // Sharp corners for elegance
               overflow: 'hidden',
-              border: '1px solid #F1C8CB',
+              border: 'none',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
               transition: 'transform 0.3s ease',
               '&:hover': {
                 transform: 'translateY(-5px)',
-                boxShadow: '0 5px 10px rgba(0,0,0,0.1)'
+                boxShadow: '0 12px 24px rgba(0,0,0,0.12)'
               }
             }}
           >
@@ -351,12 +439,13 @@ export default function Home() {
               <Typography 
                 variant="h6" 
                 component="div"
-                
                 sx={{ 
                   color: '#1A4D2E',
-                  fontWeight: 600,
+                  fontWeight: 400,
                   textAlign: 'center',
-                  pb: 1
+                  pb: 1,
+                  letterSpacing: '0.05em',
+                  fontFamily: '"Montserrat", sans-serif'
                 }}
               >
                 Your Climate Action Goals
@@ -395,9 +484,10 @@ export default function Home() {
                   color: '#FCFFE0',
                   py: 1,
                   fontSize: '0.9rem',
-                  borderRadius: '8px',
-                  textTransform: 'none',
-                  fontWeight: 500
+                  borderRadius: 0, // Sharp corners for elegance
+                  textTransform: 'uppercase',
+                  fontWeight: 400,
+                  letterSpacing: '0.05em'
                 }}
               >
                 Set Your Goals
@@ -414,13 +504,14 @@ export default function Home() {
               display: 'flex',
               flexDirection: 'column',
               backgroundColor: '#FCFFE0',
-              borderRadius: 3,
+              borderRadius: 0, // Sharp corners for elegance
               overflow: 'hidden',
-              border: '1px solid #F1C8CB',
+              border: 'none',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
               transition: 'transform 0.3s ease',
               '&:hover': {
                 transform: 'translateY(-5px)',
-                boxShadow: '0 5px 10px rgba(0,0,0,0.1)'
+                boxShadow: '0 12px 24px rgba(0,0,0,0.12)'
               }
             }}
           >
@@ -477,9 +568,11 @@ export default function Home() {
                 component="div"
                 sx={{ 
                   color: '#1A4D2E',
-                  fontWeight: 600,
+                  fontWeight: 400,
                   textAlign: 'center',
-                  pb: 1
+                  pb: 1,
+                  letterSpacing: '0.05em',
+                  fontFamily: '"Montserrat", sans-serif'
                 }}
               >
                 Climate Change Blog
@@ -518,9 +611,10 @@ export default function Home() {
                   color: '#FCFFE0',
                   py: 1,
                   fontSize: '0.9rem',
-                  borderRadius: '8px',
-                  textTransform: 'none',
-                  fontWeight: 500
+                  borderRadius: 0, // Sharp corners for elegance
+                  textTransform: 'uppercase',
+                  fontWeight: 400,
+                  letterSpacing: '0.05em'
                 }}
               >
                 Read Articles
@@ -529,6 +623,8 @@ export default function Home() {
           </Card>
         </Box>
       </Container>
+      
+      {/* Earth Day Countdown widget */}
       <Box sx={{ 
           display: 'flex', 
           justifyContent: 'center',
@@ -537,10 +633,10 @@ export default function Home() {
         <Card sx={{
           width: '320px',
           bgcolor: '#f5ffef',
-          borderRadius: '16px',
+          borderRadius: '0px', // Sharp corners for elegance
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
           overflow: 'hidden',
-          border: '1px solid #e0f2e0',
+          border: 'none',
           p: 3,
           position: 'relative'
         }}>
@@ -579,10 +675,10 @@ export default function Home() {
             </Box>
             
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Typography variant="caption" sx={{ color: '#006400', fontWeight: 500 }}>
+              <Typography variant="caption" sx={{ color: '#006400', fontWeight: 500, letterSpacing: '0.05em' }}>
                 NOW PLAYING
               </Typography>
-              <Typography variant="subtitle1" sx={{ color: '#006400', fontWeight: 700, mb: 0.5 }}>
+              <Typography variant="subtitle1" sx={{ color: '#006400', fontWeight: 700, mb: 0.5, letterSpacing: '0.02em' }}>
                 Earth Day Countdown
               </Typography>
               <Typography variant="body2" sx={{ color: '#006400', fontStyle: 'italic' }}>
